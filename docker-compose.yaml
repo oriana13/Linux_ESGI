@@ -1,0 +1,55 @@
+version: "3"
+
+services:
+  node:
+    image: node:17.0.0-alpine
+    user: node
+    entrypoint: node
+    command: src/index.js
+    tty: true
+    stdin_open: true
+    working_dir: /home/node
+    volumes:
+      - .:/home/node
+
+  nginx:
+    image: nginx:1.21.6
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/default_website.conf:/etc/nginx/conf.d/default_website.conf
+      - ./nginx/default_api.conf:/etc/nginx/conf.d/default_api.conf
+      # - ./nginx/default_website.conf:/etc/nginx/conf.d/default_database.conf
+
+  client:
+    build: ./client
+    volumes:
+      - ./client/:/home/client/
+    entrypoint: node index.js
+
+  api:
+    build: ./api
+    volumes:
+      - ./api/:/home/api/
+    entrypoint: node index.js
+
+  mongo:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=rootpassword
+      - MONGO_INITDB_DATABASE=project_linux
+
+  mongo-express:
+    image: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
+      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+      - ME_CONFIG_MONGODB_AUTH_USERNAME=root
+      - ME_CONFIG_MONGODB_AUTH_PASSWORD=rootpassword
+    depends_on:
+      - mongo
+  
