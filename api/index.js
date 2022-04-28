@@ -2,27 +2,43 @@ const express = require('express');
 const mongoose = require("mongoose")
 const { MongoClient } = require("mongodb");
 const app = express();
+const router = express.Router();
 const port = 3000;
-var url = 'mongodb://admin:admin@mongo:27017';
+const tasks = require("./model");
+var url = 'mongodb://root:password@mongodb:27017';
 
 
+mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true });
 
+const connection = mongoose.connection;
+
+connection.once("open", function() {
+  console.log("MongoDB database connection established successfully");
+});
+
+app.use("/", router);
 
 app.get('/', (req, res) => {
   res.send('TEST APIIII')
 });
 
-app.get('/getDB', (req, res) => {
-    MongoClient.connect("mongodb://root:password@mongodb:27017")
-    .then(()=>{
-      console.log("db connect success");
-    })
-    .catch((err)=>{
-      throw err
-    });
-    res.send('TEST APIIII db connect success')
+router.route("/fetchdata").get(function(req, res) {
+  tasks.find({}, function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.send(result);
+    }
+  });
 });
 
-app.listen(port, () => {
-  console.log(`Application API exemple à l'écoute sur le port ${port}!`)
+router.route("/setdata").get(async function(req, res) {
+  const test = new tasks({ contenu:'aaaaaaaaaaa' });
+  await test.save();
+  res.send(test);
+});
+
+
+app.listen(port, function() {
+  console.log("Server is running on Port: " + port);
 });
