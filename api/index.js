@@ -1,12 +1,13 @@
 const express = require('express');
 const mongoose = require("mongoose")
+var bodyParser = require("body-parser");
 const { MongoClient } = require("mongodb");
 const app = express();
 const router = express.Router();
 const port = 3000;
 const tasks = require("./model");
 var url = 'mongodb://root:password@mongodb:27017';
-
+let cors = require("cors")
 
 mongoose.connect(url, { useUnifiedTopology: true, useNewUrlParser: true });
 
@@ -16,7 +17,10 @@ connection.once("open", function() {
   console.log("MongoDB database connection established successfully");
 });
 
+app.use(cors({origin: '*'}));
 app.use("/", router);
+app.use(bodyParser.json());
+
 
 app.get('/', (req, res) => {
   res.send('TEST APIIII')
@@ -33,9 +37,11 @@ router.route("/fetchdata").get(function(req, res) {
 });
 
 router.route("/setdata").get(async function(req, res) {
-  const test = new tasks({ contenu:'aaaaaaaaaaa' });
-  await test.save();
-  res.send(test);
+  let res1 = req.params;
+  console.log("set data 1", res1);
+  // const test = new tasks({ contenu:'aaaaaaaaaaa' });
+  // await test.save();
+  res.send("WORKINGGGG SET DATA");
 });
 
 

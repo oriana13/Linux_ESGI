@@ -1,13 +1,10 @@
-const express = require('express');
-const app = express();
-const path = require('path');
-const port = 3000;
+var http = require('http');
+var fs = require('fs');
+var index = fs.readFileSync('index.html');
 
-app.get('/', (req, res) => {
-//   res.send('Hello World!')
-  res.sendFile(path.join(__dirname+'/index.html'));
-});
-
-app.listen(port, () => {
-  console.log(`Application CLIENT exemple à l'écoute sur le port ${port}!`)
-});
+http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    // change the to 'text/plain' to 'text/html' it will work as your index page
+    res.end(index);
+    console.log("Server lancer")
+}).listen(3000);
